@@ -42,6 +42,7 @@ export interface CoworkSession {
   systemPrompt: string;
   executionMode: CoworkExecutionMode;
   activeSkillIds: string[];
+  model?: string;
   messages: CoworkMessage[];
   createdAt: number;
   updatedAt: number;
@@ -162,6 +163,7 @@ export interface CoworkStartOptions {
   systemPrompt?: string;
   title?: string;
   activeSkillIds?: string[];
+  model?: string;
 }
 
 // Continue session options

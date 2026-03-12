@@ -1002,6 +1002,7 @@ if (!gotTheLock) {
     systemPrompt?: string;
     title?: string;
     activeSkillIds?: string[];
+    model?: string;
   }) => {
     try {
       const coworkStoreInstance = getCoworkStore();
@@ -1026,7 +1027,8 @@ if (!gotTheLock) {
         taskWorkingDirectory,
         systemPrompt,
         config.executionMode || 'local',
-        options.activeSkillIds || []
+        options.activeSkillIds || [],
+        options.model
       );
       const runner = getCoworkRunner();
 

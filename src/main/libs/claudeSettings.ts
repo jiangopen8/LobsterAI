@@ -89,7 +89,7 @@ function providerRequiresApiKey(providerName: string): boolean {
   return providerName !== 'ollama';
 }
 
-function resolveMatchedProvider(appConfig: AppConfig): { matched: MatchedProvider | null; error?: string } {
+function resolveMatchedProvider(appConfig: AppConfig, modelOverride?: string): { matched: MatchedProvider | null; error?: string } {
   const providers = appConfig.providers ?? {};
 
   const resolveFallbackModel = (): string | undefined => {
@@ -102,7 +102,7 @@ function resolveMatchedProvider(appConfig: AppConfig): { matched: MatchedProvide
     return undefined;
   };
 
-  const modelId = appConfig.model?.defaultModel || resolveFallbackModel();
+  const modelId = modelOverride || appConfig.model?.defaultModel || resolveFallbackModel();
   if (!modelId) {
     return { matched: null, error: 'No available model configured in enabled providers.' };
   }
@@ -140,7 +140,7 @@ function resolveMatchedProvider(appConfig: AppConfig): { matched: MatchedProvide
   };
 }
 
-export function resolveCurrentApiConfig(target: OpenAICompatProxyTarget = 'local'): ApiConfigResolution {
+export function resolveCurrentApiConfig(target: OpenAICompatProxyTarget = 'local', modelOverride?: string): ApiConfigResolution {
   const sqliteStore = getStore();
   if (!sqliteStore) {
     return {
@@ -157,7 +157,7 @@ export function resolveCurrentApiConfig(target: OpenAICompatProxyTarget = 'local
     };
   }
 
-  const { matched, error } = resolveMatchedProvider(appConfig);
+  const { matched, error } = resolveMatchedProvider(appConfig, modelOverride);
   if (!matched) {
     return {
       config: null,
@@ -217,8 +217,8 @@ export function resolveCurrentApiConfig(target: OpenAICompatProxyTarget = 'local
   };
 }
 
-export function getCurrentApiConfig(target: OpenAICompatProxyTarget = 'local'): CoworkApiConfig | null {
-  return resolveCurrentApiConfig(target).config;
+export function getCurrentApiConfig(target: OpenAICompatProxyTarget = 'local', modelOverride?: string): CoworkApiConfig | null {
+  return resolveCurrentApiConfig(target, modelOverride).config;
 }
 
 export function buildEnvForConfig(config: CoworkApiConfig): Record<string, string> {

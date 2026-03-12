@@ -25,9 +25,22 @@
  *   { slide, placeholders } where placeholders is an array of { id, x, y, w, h }
  */
 
-const { chromium } = require('playwright');
 const path = require('path');
-const sharp = require('sharp');
+
+// Support both global and local installations
+function requireModule(name) {
+  try {
+    return require(name);
+  } catch (e) {
+    // Try global installation
+    const { execSync } = require('child_process');
+    const globalPath = execSync('npm root -g').toString().trim();
+    return require(path.join(globalPath, name));
+  }
+}
+
+const { chromium } = requireModule('playwright');
+const sharp = requireModule('sharp');
 
 const PT_PER_PX = 0.75;
 const PX_PER_IN = 96;

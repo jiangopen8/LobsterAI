@@ -2333,7 +2333,7 @@ export class CoworkRunner extends EventEmitter {
     activeSession.lastStreamingTextUpdateAt = 0;
     activeSession.lastStreamingThinkingUpdateAt = 0;
 
-    const apiConfig = getCurrentApiConfig('local');
+    const apiConfig = getCurrentApiConfig('local', this.store.getSession(sessionId)?.model);
     if (!apiConfig) {
       this.handleError(sessionId, 'API configuration not found. Please configure model settings.');
       this.clearPendingPermissions(sessionId);
@@ -2800,7 +2800,7 @@ export class CoworkRunner extends EventEmitter {
       return;
     }
 
-    const apiConfig = getCurrentApiConfig('sandbox');
+    const apiConfig = getCurrentApiConfig('sandbox', this.store.getSession(sessionId)?.model);
     if (!apiConfig) {
       this.handleError(sessionId, 'API configuration not found. Please configure model settings.');
       this.clearPendingPermissions(sessionId);
@@ -3322,7 +3322,7 @@ export class CoworkRunner extends EventEmitter {
     activeSession.lastStreamingTextUpdateAt = 0;
     activeSession.lastStreamingThinkingUpdateAt = 0;
 
-    const apiConfig = getCurrentApiConfig('sandbox');
+    const apiConfig = getCurrentApiConfig('sandbox', this.store.getSession(sessionId)?.model);
     if (!apiConfig) {
       this.handleError(sessionId, 'API configuration not found. Please configure model settings.');
       return;

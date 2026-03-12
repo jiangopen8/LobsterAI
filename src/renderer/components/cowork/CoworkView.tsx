@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { clearCurrentSession, setCurrentSession, setStreaming } from '../../store/slices/coworkSlice';
+import { setSelectedModel } from '../../store/slices/modelSlice';
 import { clearActiveSkills, setActiveSkillIds } from '../../store/slices/skillSlice';
 import { setActions, selectAction, clearSelection } from '../../store/slices/quickActionSlice';
 import { coworkService } from '../../services/cowork';
@@ -46,6 +47,17 @@ const CoworkView: React.FC<CoworkViewProps> = ({ onRequestAppSettings, onShowSki
   } = useSelector((state: RootState) => state.cowork);
 
   const activeSkillIds = useSelector((state: RootState) => state.skill.activeSkillIds);
+  const selectedModel = useSelector((state: RootState) => state.model.selectedModel);
+  const availableModels = useSelector((state: RootState) => state.model.availableModels);
+
+  // Sync model selector when switching sessions
+  useEffect(() => {
+    if (!currentSession?.model) return;
+    const sessionModel = availableModels.find(m => m.id === currentSession.model);
+    if (sessionModel && sessionModel.id !== selectedModel?.id) {
+      dispatch(setSelectedModel(sessionModel));
+    }
+  }, [currentSession?.id]);
   const skills = useSelector((state: RootState) => state.skill.skills);
   const quickActions = useSelector((state: RootState) => state.quickAction.actions);
   const selectedActionId = useSelector((state: RootState) => state.quickAction.selectedActionId);
@@ -205,6 +217,7 @@ const CoworkView: React.FC<CoworkViewProps> = ({ onRequestAppSettings, onShowSki
         cwd: config.workingDirectory || undefined,
         systemPrompt: combinedSystemPrompt,
         activeSkillIds: sessionSkillIds,
+        model: selectedModel?.id,
       });
 
       // Stop immediately if user cancelled while startup request was in flight.

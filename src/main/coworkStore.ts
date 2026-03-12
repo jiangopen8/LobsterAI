@@ -328,6 +328,7 @@ export interface CoworkSession {
   systemPrompt: string;
   executionMode: CoworkExecutionMode;
   activeSkillIds: string[];
+  model?: string;
   messages: CoworkMessage[];
   createdAt: number;
   updatedAt: number;
@@ -510,15 +511,16 @@ export class CoworkStore {
     cwd: string,
     systemPrompt: string = '',
     executionMode: CoworkExecutionMode = 'local',
-    activeSkillIds: string[] = []
+    activeSkillIds: string[] = [],
+    model?: string
   ): CoworkSession {
     const id = uuidv4();
     const now = Date.now();
 
     this.db.run(`
-      INSERT INTO cowork_sessions (id, title, claude_session_id, status, cwd, system_prompt, execution_mode, active_skill_ids, pinned, created_at, updated_at)
-      VALUES (?, ?, NULL, 'idle', ?, ?, ?, ?, 0, ?, ?)
-    `, [id, title, cwd, systemPrompt, executionMode, JSON.stringify(activeSkillIds), now, now]);
+      INSERT INTO cowork_sessions (id, title, claude_session_id, status, cwd, system_prompt, execution_mode, active_skill_ids, model, pinned, created_at, updated_at)
+      VALUES (?, ?, NULL, 'idle', ?, ?, ?, ?, ?, 0, ?, ?)
+    `, [id, title, cwd, systemPrompt, executionMode, JSON.stringify(activeSkillIds), model || null, now, now]);
 
     this.saveDb();
 
@@ -532,6 +534,7 @@ export class CoworkStore {
       systemPrompt,
       executionMode,
       activeSkillIds,
+      model,
       messages: [],
       createdAt: now,
       updatedAt: now,
@@ -549,12 +552,13 @@ export class CoworkStore {
       system_prompt: string;
       execution_mode?: string | null;
       active_skill_ids?: string | null;
+      model?: string | null;
       created_at: number;
       updated_at: number;
     }
 
     const row = this.getOne<SessionRow>(`
-      SELECT id, title, claude_session_id, status, pinned, cwd, system_prompt, execution_mode, active_skill_ids, created_at, updated_at
+      SELECT id, title, claude_session_id, status, pinned, cwd, system_prompt, execution_mode, active_skill_ids, model, created_at, updated_at
       FROM cowork_sessions
       WHERE id = ?
     `, [id]);
@@ -582,6 +586,7 @@ export class CoworkStore {
       systemPrompt: row.system_prompt,
       executionMode: (row.execution_mode as CoworkExecutionMode) || 'local',
       activeSkillIds,
+      model: row.model || undefined,
       messages,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
